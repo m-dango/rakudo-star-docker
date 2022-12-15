@@ -13,12 +13,11 @@ RUN buildDeps=' \
     ' \
     \
     url="https://rakudo.org/dl/star/rakudo-star-${rakudo_version}.tar.gz" \
+    keyserver="hkps://keys.openpgp.org" \
     keyfp="3E7E3C6EAF916676AC549285A2919382E961E2EE" \
-    pubkeyurl="https://rakudo.org/keys/rakudo_github_automation-${keyfp}.asc" \
     tmpdir="$(mktemp -d)" \
     && set -eux \
-    && export GNUPGHOME="$tmpdir/gnupg" \
-    && mkdir $GNUPGHOME \
+    && export GNUPGHOME="$tmpdir" \
     && apt-get update \
     && apt-get install -y --no-install-recommends $buildDeps \
     && rm -rf /var/lib/apt/lists/* \
@@ -26,13 +25,8 @@ RUN buildDeps=' \
     \
     && curl -fsSL ${url}.asc -o ${tmpdir}/rakudo.tar.gz.asc \
     && curl -fsSL $url -o ${tmpdir}/rakudo.tar.gz \
-    && curl -fsSL $pubkeyurl -o ${tmpdir}/key.asc \
     \
-    && gpg --batch --import ${tmpdir}/key.asc \
-    && gpg --batch --export $keyfp > ${tmpdir}/${keyfp}.asc \
-    && rm -rf $GNUPGHOME \
-    && mkdir $GNUPGHOME \
-    && gpg --batch --import ${tmpdir}/${keyfp}.asc \
+    && gpg --batch --keyserver $keyserver --recv-keys $keyfp \
     && gpg --batch --verify ${tmpdir}/rakudo.tar.gz.asc ${tmpdir}/rakudo.tar.gz \
     \
     && tar xzf ${tmpdir}/rakudo.tar.gz --strip-components=1 -C ${tmpdir}/rakudo \
