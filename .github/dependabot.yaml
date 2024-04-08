@@ -9,3 +9,8 @@ updates:
     directory: /2024.02/bookworm/
     schedule:
       interval: daily
+  
+  - package-ecosystem: docker
+    directory: /2024.02/alpine3.19/
+    schedule:
+      interval: daily
